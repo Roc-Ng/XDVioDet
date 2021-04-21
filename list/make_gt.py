@@ -5,11 +5,11 @@ import cv2
 clip_len = 16
 
 # the dir of testing images
-video_root = '/media/peng/Samsung_T5/Dataset/TestClips/Videos'
+video_root = 'xx/TestClips/Videos'   ## the path of test videos
 feature_list = 'rgb_test.list'
 # the ground truth txt
 
-gt_txt = '/media/peng/Samsung_T5/Code/annotations.txt'
+gt_txt = 'xx/annotations.txt'     ## the path of test annotations
 gt_lines = list(open(gt_txt))
 gt = []
 lists = list(open(feature_list))
@@ -42,10 +42,9 @@ for idx in range(len(lists)):
     gt_vec = gt_vec[:-1]
     if mod:
         gt_vec = gt_vec[:-mod]
-    print(len(gt_vec)//16, idx)
     gt.extend(gt_vec)
     if sum(gt_vec)/len(gt_vec):
         tlens += len(gt_vec)
         vlens += sum(gt_vec)
 
-np.save('gt2.npy', gt)
+np.save('gt.npy', gt)

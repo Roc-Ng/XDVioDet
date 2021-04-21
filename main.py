@@ -2,9 +2,9 @@ from torch.utils.data import DataLoader
 import torch.optim as optim
 import torch
 import time
-import os
 import numpy as np
 import random
+import os
 from model import Model
 from dataset import Dataset
 from train import train
@@ -21,7 +21,7 @@ def setup_seed(seed):
 
 if __name__ == '__main__':
     torch.multiprocessing.set_start_method('spawn')
-    setup_seed(2333)
+    # setup_seed(2333)
     args = option.parser.parse_args()
     device = torch.device("cuda")
     train_loader = DataLoader(Dataset(args, test_mode=False),
@@ -41,15 +41,14 @@ if __name__ == '__main__':
     approximator_param += list(map(id, model.conv1d_approximator.parameters()))
     base_param = filter(lambda p: id(p) not in approximator_param, model.parameters())
 
-    # if not os.path.exists('./ckpt'):
-    #     os.makedirs('./ckpt')
+    if not os.path.exists('./ckpt'):
+        os.makedirs('./ckpt')
     optimizer = optim.Adam([{'params': base_param},
                             {'params': model.approximator.parameters(), 'lr': args.lr / 2},
                             {'params': model.conv1d_approximator.parameters(), 'lr': args.lr / 2},
                             ],
                             lr=args.lr, weight_decay=0.000)
     scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10], gamma=0.1)
-    # scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
     criterion = torch.nn.BCELoss()
 
     is_topk = True
@@ -60,9 +59,9 @@ if __name__ == '__main__':
         scheduler.step()
         st = time.time()
         train(train_loader, model, optimizer, criterion, device, is_topk)
-        # if epoch % 10 == 0 and not epoch == 0:
-        torch.save(model.state_dict(), '/data-nas1/wuyi/TopicGrounding/XD-Violence/ckpt/'+args.model_name+'{}.pkl'.format(epoch))
+        if epoch % 2 == 0 and not epoch == 0:
+            torch.save(model.state_dict(), './ckpt/'+args.model_name+'{}.pkl'.format(epoch))
 
         pr_auc, pr_auc_online = test(test_loader, model, device, gt)
         print('Epoch {0}/{1}: offline pr_auc:{2:.4}; online pr_auc:{3:.4}\n'.format(epoch, args.max_epoch, pr_auc, pr_auc_online))
-    # torch.save(model.state_dict(), './ckpt/' + args.model_name + '.pkl')
+    torch.save(model.state_dict(), './ckpt/' + args.model_name + '.pkl')

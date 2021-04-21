@@ -60,7 +60,6 @@ class Model(nn.Module):
 
         ## gcn
         scoadj = self.sadj(logits.detach(), seq_len)
-        # adj = self.simAdj(inputs, seq_len)
         adj = self.adj(inputs, seq_len)
         disadj = self.disAdj(x.shape[0], x.shape[1])
         x1_h = self.relu(self.gc1(x, adj))
@@ -85,7 +84,7 @@ class Model(nn.Module):
         logits2 = self.sigmoid(logits).repeat(1, 1, lens)
         tmp = logits2.permute(0, 2, 1)
         adj = 1. - torch.abs(logits2 - tmp)
-        self.sig = lambda x:1/(1+torch.exp(-((x-0.5))/0.1))#/0.1
+        self.sig = lambda x:1/(1+torch.exp(-((x-0.5))/0.1))
         adj = self.sig(adj)
         output = torch.zeros_like(adj)
         if seq_len is None:

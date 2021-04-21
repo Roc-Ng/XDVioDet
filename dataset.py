@@ -93,68 +93,8 @@ class Dataset(data.Dataset):
             return features
 
         else:
-            '''
-            1
-            '''
             features = process_feat(features, self.max_seqlen, is_random=False)
             return features, label
-
-    def __len__(self):
-        return len(self.list)
-
-
-
-
-
-
-
-
-
-class DatasetVal(data.Dataset):
-    def __init__(self, args, transform=None):
-        self.modality = args.modality
-
-        self.rgb_list_file = args.rgb_list
-        self.flow_list_file = args.flow_list
-        self.max_seqlen = args.max_seqlen
-        self.tranform = transform
-
-        self._parse_list()
-
-    def _parse_list(self):
-        if self.modality == 'RGB':
-            self.list = list(open(self.rgb_list_file))
-        elif self.modality == 'FLOW':
-            self.list = list(open(self.flow_list_file))
-        elif self.modality == 'MIX':
-            self.list = list(open(self.rgb_list_file))
-            self.flow_list = list(open(self.flow_list_file))
-        else:
-            assert 1 > 2, 'Modality is wrong!'
-
-    def __getitem__(self, index):
-        if 'Normal' in self.list[index]:
-            label = 0
-        else:
-            label = 1
-        if self.modality == 'RGB':
-            features = np.array(np.load(self.list[index].strip('\n')),dtype=np.float32)
-        elif self.modality == 'FLOW':
-            features = np.array(np.load(self.list[index].strip('\n')), dtype=np.float32)
-        elif self.modality == 'MIX':
-            features1 = np.array(np.load(self.list[index].strip('\n')), dtype=np.float32)
-            features2 = np.array(np.load(self.flow_list[index].strip('\n')), dtype=np.float32)
-            if features1.shape[0] == features2.shape[0]:
-                features = np.concatenate((features1, features2),axis=1)
-            else:# because the frames of flow is one less than that of rgb
-                features = np.concatenate((features1[:-1], features2), axis=1)
-        else:
-            assert 1>2, 'Modality is wrong!'
-        if self.tranform is not None:
-            features = self.tranform(features)
-
-        return features
-
 
     def __len__(self):
         return len(self.list)
