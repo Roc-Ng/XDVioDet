@@ -1,0 +1,18 @@
+version: 1
+kind: experiment
+backend: kubeflow
+framework: pytorch
+build:
+  image: 'reg.docker.alibaba-inc.com/dinger/trainer:alios-cuda10.2-torch1.6.0-runtime'
+environment:
+  instance_type: v100x1.16g.8c.32g
+  resource_group: video-understanding.v100.16g
+  replicas:
+    n_workers: 1
+  data_refs:
+    - video-understanding-nas-yw
+    - data-nas1
+run:
+  cmd:  ldconfig; python infer.py
+
+
